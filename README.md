@@ -1,2 +1,2 @@
 # FIT
-FIT projects
+school projects
