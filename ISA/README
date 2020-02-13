@@ -1,0 +1,20 @@
+Klient-server aplikácia umožnujúca správu násteniek a príspevkov daných násteniek prostredníctvom HTTP API.
+
+Príklad spustenia serveru:
+	./isaserver -p 4242 
+	# spustenie serveru čakajúceho na pripojenia na porte 4242
+
+Príklad spustenia klienta:
+	./isaclient -H localhost -p 4242 boards 
+	# spustenie klienta požadujúceho od servera "localhost" na porte 4242 vypísanie dostupných násteniek
+
+Oba programy je možné spustiť s parametrom -h ktorý vypíše na stdout jednoduchú nápovedu k danému programu.
+
+Odovzdané súbory:
+isaclient.cpp
+isaserver.cpp
+isaproject.h
+Makefile
+manual.pdf
+README
+
