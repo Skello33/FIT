@@ -1,0 +1,232 @@
+#!/bin/dash
+
+#check wedirc
+if [ -z $WEDI_RC ]
+	then
+	echo "ERROR: WEDI_RC was not set!"
+	return 1
+fi
+
+#create/update wedirc
+WEDI_RC=$( realpath $WEDI_RC )
+#echo "$WEDI_RC"
+touch $WEDI_RC
+
+#no args - WORKS
+if [ $# -eq 0 ] 
+	then 
+	abrakadabra=$( tail -n 1 $WEDI_RC | awk '{ print $3 }' )
+	if [ $EDITOR ]
+		then
+		$EDITOR $abrakadabra
+		#echo "$EDITOR"
+	elif [ $VISUAL ]
+		then
+		$VISUAL $abrakadabra
+		#echo "$VISUAL"
+	else
+		#echo "using vi on $abrakadabra"
+		vi $abrakadabra
+	fi
+
+	touch $abrakadabra
+	#
+	echo -n $( realpath $abrakadabra )" " >> $WEDI_RC
+	#abrakadabra=$(grep $abrakadabra $WEDI_RC | awk '{ print $3 }' | head -1 )
+	ls -lt | grep $abrakadabra | awk '{ print $8"-"$6"-"$7" "$9 }' >> $WEDI_RC  #zapis do suboru wedirc
+	return 0
+fi
+
+#more args
+if [ $# -gt 0 ]  
+	then
+	case $1 in
+		#most used file
+		-m )
+			#echo "most used file"
+			#most used with specified directory - WORKS?
+			if [ $# -eq 2 ]
+				then 
+				if [ -d $2 ]
+					then
+					cd $2
+					#PIPE_MAGIC by Ronin147
+					slash_num=$(echo $(pwd) | grep "/" -o | wc -l)
+					slash_num=$((slash_num+1))
+					#echo "slashes : $slash_num"
+					line_checked=$(sort $WEDI_RC | uniq -c | sort -nr | sed '1q;d' | grep "/" -o | wc -l)
+					i=1
+					#echo "$i. checked, slashes : $line_checked" 
+					
+					while [ $slash_num -ne $line_checked ]; do
+						i=$((i+1))
+						
+					line_checked=$(sort $WEDI_RC | uniq -c | sort -nr | sed "${i}q;d" | grep "/" -o | wc -l)
+					#echo "$i. checked, slashes : $line_checked"
+					#echo "$abrakadabra"
+					done
+					abrakadabra=$(sort $WEDI_RC | uniq -c | sort -nr | sed "${i}q;d" | awk '{ print $4}' )
+					#echo "$abrakadabra"
+					#editor opening
+					if [ $EDITOR ]
+						then
+						$EDITOR $abrakadabra
+						#echo "$EDITOR"
+					elif [ $VISUAL ]
+						then
+						$VISUAL $abrakadabra
+						#echo "$VISUAL"
+					else
+						#echo "using vi on $abrakadabra"
+						vi $abrakadabra
+				fi
+				touch $abrakadabra
+				#echo "tusom"
+				echo -n $( realpath $abrakadabra)" " >> $WEDI_RC
+				#abrakadabra=$(grep $abrakadabra $WEDI_RC | awk '{ print $3 }' | head -1 )
+				ls -lt | grep $abrakadabra | awk '{ print $8"-"$6"-"$7" "$9 }' >> $WEDI_RC  #zapis do suboru wedirc
+				return 0
+
+				else
+					echo "ERROR: directory expected!"
+					return 1
+				fi
+
+			#most used without specified directory - WORKS
+			elif [ $# -eq 1 ]
+				then
+					slash_num=$(echo $(pwd) | grep "/" -o | wc -l)
+					slash_num=$((slash_num+1))
+					#echo "slashes : $slash_num"
+					line_checked=$(sort $WEDI_RC | uniq -c | sort -nr | sed '1q;d' | grep "/" -o | wc -l)
+					i=1
+					#echo "$i. checked, slashes : $line_checked" 
+					
+					while [ $slash_num -ne $line_checked ]; do
+						i=$((i+1))
+						
+					line_checked=$(sort $WEDI_RC | uniq -c | sort -nr | sed "${i}q;d" | grep "/" -o | wc -l)
+					#echo "$i. checked, slashes : $line_checked"
+					#echo "$abrakadabra"
+					done
+					abrakadabra=$(sort $WEDI_RC | uniq -c | sort -nr | sed "${i}q;d" | awk '{ print $4}' )
+					#echo "$abrakadabra"
+					#editor opening
+					if [ $EDITOR ]
+						then
+						$EDITOR $abrakadabra
+						#echo "$EDITOR"
+					elif [ $VISUAL ]
+						then
+						$VISUAL $abrakadabra
+						#echo "$VISUAL"
+					else
+						#echo "using vi on $abrakadabra"
+						vi $abrakadabra
+				fi
+				touch $abrakadabra
+				#echo "tusom"
+				echo -n $( realpath $abrakadabra)" " >> $WEDI_RC
+				#abrakadabra=$(grep $abrakadabra $WEDI_RC | awk '{ print $3 }' | head -1 )
+				ls -lt | grep $abrakadabra | awk '{ print $8"-"$6"-"$7" "$9 }' >> $WEDI_RC  #zapis do suboru wedirc
+				return 0
+			fi
+			;;
+		-l )
+			#print used without specified directory - WORKS
+			if [ $# -eq 1 ]
+				then
+					slash_num=$(echo $(pwd) | grep "/" -o | wc -l)
+					slash_num=$((slash_num+1))
+					#echo "slashes : $slash_num"
+					#line_checked=$(sort $WEDI_RC | uniq -c | sort -nr | sed '1q;d' | grep "/" -o | wc -l)
+				
+					#echo "$i. checked, slashes : $line_checked" 
+					lines_num=$(wc -l $WEDI_RC | awk '{ print $1 }')
+					#echo "$lines_num"
+					for i in `seq 1 $lines_num`; do
+
+						#i=$((i+1))
+						
+						line_checked=$(sort $WEDI_RC | uniq -c | sort -nr | sed "${i}q;d" | grep "/" -o | wc -l)
+						if [ $line_checked -eq $slash_num ]
+							then
+							abrakadabra=$(sort $WEDI_RC | uniq -c | sort -nr | sed "${i}q;d" | awk '{ print $4}' )
+							echo $abrakadabra
+						fi
+					#echo "$i. checked, slashes : $line_checked"
+					#echo "$abrakadabra"
+					done
+					#abrakadabra=$(sort $WEDI_RC | uniq -c | sort -nr | sed "${i}q;d" | awk '{ print $4}' )
+					#echo "$abrakadabra"
+					#editor opening
+					
+				fi
+				return 0
+			;;
+		-b )
+			echo "before date"
+			return
+			;;
+		-a )
+			echo "after date"
+			return
+			;;
+	esac
+fi
+#echo "Zadany jeden argument"
+#d=$(stat $1 | grep -c "directory")
+#echo "directory : $d"
+#f=$(stat $1 | grep -c "file")
+#echo "file : $f"
+
+#WORKS
+if [ $# -eq 1 ]
+	then
+	#arg is a DIRECTORY - WORKS
+	if [ -d $1 ]
+		then
+			#echo "zadany argument je directory"
+			abrakadabra=$( grep $1 $WEDI_RC | tail -n 1 | awk '{ print $3 }' )
+			if [ $EDITOR ]
+				then
+				$EDITOR $abrakadabra
+				#echo "$EDITOR"
+			elif [ $VISUAL ]
+				then
+				$VISUAL $abrakadabra
+				#echo "$VISUAL"
+			else
+			#echo "using vi on % $abrakadabra"
+			vi $abrakadabra
+			fi
+			touch $abrakadabra
+			#
+			echo -n $( realpath $abrakadabra )" " >> $WEDI_RC
+			#abrakadabra=$(grep $abrakadabra $WEDI_RC | awk '{ print $3 }' | head -1 )
+			ls -lt | grep $abrakadabra | awk '{ print $8"-"$6"-"$7" "$9 }' >> $WEDI_RC  #zapis do suboru wedirc
+			return 0
+	#arg is a FILE - WORKS
+	elif [ -f $1 ]
+		then
+			#echo "zadany argument je subor"
+			if [ $EDITOR ]
+				then
+				$EDITOR $1
+				#echo "$EDITOR"
+			elif [ $VISUAL ]
+				then
+				$VISUAL $1
+				#echo "$VISUAL"
+			else
+				#echo "using vi on !$1"
+				vi $1
+			fi
+		touch $1
+		#writing filepath
+		echo -n $( realpath $1 )" " >> $WEDI_RC
+		#writing time and filename
+		ls -lt | grep $1 | awk '{ print $8"-"$6"-"$7" "$9 }' >> $WEDI_RC
+		return 0
+	fi
+fi
